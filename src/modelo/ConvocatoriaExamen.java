@@ -30,7 +30,16 @@ public class ConvocatoriaExamen implements Serializable{
     }
 
     // Getters y Setters
-    public String getConvocatoria() { return convocatoria; }
+    
+    public int getIdEnunciado() { return idEnunciado; }
+
+    public void setIdEnunciado(int idEnunciado) {
+        this.idEnunciado = idEnunciado;
+    }
+    
+    public String getConvocatoria() {
+        return convocatoria;
+    }
     public void setConvocatoria(String convocatoria) { this.convocatoria = convocatoria; }
 
     public String getDescripcion() { return descripcion; }
