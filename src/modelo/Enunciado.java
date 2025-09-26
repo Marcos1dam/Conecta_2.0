@@ -5,31 +5,38 @@
  */
 package modelo;
 
-import java.util.Map;
-import utilidades.Utilidades;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
- * @author 2dam
+ * @author juanm
  */
-public class Enunciado {
+public class Enunciado implements Serializable {
+
     private int id;
     private String descripcion;
-    private Nivel nivel;
+    private Dificultad nivel;
     private boolean disponible;
     private String ruta;
+    private List<UnidadDidactica> unidadesDidacticas;
+    private List<ConvocatoriaExamen> convocatorias;
 
     public Enunciado() {
+        this.unidadesDidacticas = new ArrayList<>();
+        this.convocatorias = new ArrayList<>();
+        this.disponible = true;
     }
 
-    public Enunciado(int id, String descripcion, Nivel nivel, boolean disponible, String ruta) {
-        this.id = id;
+    public Enunciado(String descripcion, Dificultad nivel, String ruta) {
+        this();
         this.descripcion = descripcion;
         this.nivel = nivel;
-        this.disponible = disponible;
         this.ruta = ruta;
     }
 
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -46,11 +53,11 @@ public class Enunciado {
         this.descripcion = descripcion;
     }
 
-    public Nivel getNivel() {
+    public Dificultad getNivel() {
         return nivel;
     }
 
-    public void setNivel(Nivel nivel) {
+    public void setNivel(Dificultad nivel) {
         this.nivel = nivel;
     }
 
@@ -70,13 +77,31 @@ public class Enunciado {
         this.ruta = ruta;
     }
 
+    public List<UnidadDidactica> getUnidadesDidacticas() {
+        return unidadesDidacticas;
+    }
+
+    public void setUnidadesDidacticas(List<UnidadDidactica> unidadesDidacticas) {
+        this.unidadesDidacticas = unidadesDidacticas;
+    }
+
+    public List<ConvocatoriaExamen> getConvocatorias() {
+        return convocatorias;
+    }
+
+    public void setConvocatorias(List<ConvocatoriaExamen> convocatorias) {
+        this.convocatorias = convocatorias;
+    }
 
     @Override
     public String toString() {
-        return "Enunciado{" + "id=" + id + ", descripcion=" + descripcion + ", nivel=" + nivel + ", disponible=" + disponible + ", ruta=" + ruta + '}';
+        return "Enunciado{"
+                + "id=" + id
+                + ", descripcion='" + descripcion + '\''
+                + ", nivel=" + nivel
+                + ", disponible=" + disponible
+                + ", ruta='" + ruta + '\''
+                + '}';
     }
 
-    
-    
-    
 }

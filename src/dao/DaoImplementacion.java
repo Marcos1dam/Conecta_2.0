@@ -9,10 +9,7 @@ package dao;
  *
  * @author juanm
  */
-<<<<<<< HEAD
-public class Dao {
-=======
-public interface Dao {
->>>>>>> marcos
+
+public class DaoImplementacion implements Dao{
     
 }

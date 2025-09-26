@@ -4,34 +4,37 @@
  * and open the template in the editor.
  */
 package modelo;
-import utilidades.Utilidades;
 
-import java.util.Map;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
- * @author 2dam
+ * @author juanm
  */
-public class UnidadDidactica {
-    
+public class UnidadDidactica implements Serializable {
+
     private int id;
     private String acronimo;
     private String titulo;
     private String evaluacion;
     private String descripcion;
-    
-    public UnidadDidactica(){
-        
-    }
-    
-    public UnidadDidactica(int id,String acronimo,String titulo,String evaluacion,String descripcion){
-        this.id= id;
-        this.acronimo=acronimo;
-        this.titulo=titulo;
-        this.evaluacion=evaluacion;
-        this.descripcion=descripcion;
-        
+    private List<Enunciado> enunciados;
+
+    public UnidadDidactica() {
+        this.enunciados = new ArrayList<>();
     }
 
+    public UnidadDidactica(String acronimo, String titulo, String evaluacion, String descripcion) {
+        this();
+        this.acronimo = acronimo;
+        this.titulo = titulo;
+        this.evaluacion = evaluacion;
+        this.descripcion = descripcion;
+    }
+
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -72,11 +75,22 @@ public class UnidadDidactica {
         this.descripcion = descripcion;
     }
 
+    public List<Enunciado> getEnunciados() {
+        return enunciados;
+    }
+
+    public void setEnunciados(List<Enunciado> enunciados) {
+        this.enunciados = enunciados;
+    }
 
     @Override
     public String toString() {
-        return "UnidadDidactica{" + "id=" + id + ", acronimo=" + acronimo + ", titulo=" + titulo + ", evaluacion=" + evaluacion + ", descripcion=" + descripcion + '}';
+        return "UnidadDidactica{"
+                + "id=" + id
+                + ", acronimo='" + acronimo + '\''
+                + ", titulo='" + titulo + '\''
+                + ", evaluacion='" + evaluacion + '\''
+                + ", descripcion='" + descripcion + '\''
+                + '}';
     }
-
-   
 }
