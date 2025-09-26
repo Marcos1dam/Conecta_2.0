@@ -8,12 +8,15 @@ package modelo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  *
  * @author juanm
  */
-public class Enunciado implements Serializable{
-     private int id;
+
+public class Enunciado implements Serializable {
+
+    private int id;
     private String descripcion;
     private Dificultad nivel;
     private boolean disponible;
@@ -35,39 +38,72 @@ public class Enunciado implements Serializable{
     }
 
     // Getters y Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
-    public Dificultad getNivel() { return nivel; }
-    public void setNivel(Dificultad nivel) { this.nivel = nivel; }
-
-    public boolean isDisponible() { return disponible; }
-    public void setDisponible(boolean disponible) { this.disponible = disponible; }
-
-    public String getRuta() { return ruta; }
-    public void setRuta(String ruta) { this.ruta = ruta; }
-
-    public List<UnidadDidactica> getUnidadesDidacticas() { return unidadesDidacticas; }
-    public void setUnidadesDidacticas(List<UnidadDidactica> unidadesDidacticas) { 
-        this.unidadesDidacticas = unidadesDidacticas; 
+    public int getId() {
+        return id;
     }
 
-    public List<ConvocatoriaExamen> getConvocatorias() { return convocatorias; }
-    public void setConvocatorias(List<ConvocatoriaExamen> convocatorias) { 
-        this.convocatorias = convocatorias; 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public Dificultad getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Dificultad nivel) {
+        this.nivel = nivel;
+    }
+
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
+    public String getRuta() {
+        return ruta;
+    }
+
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
+    }
+
+    public List<UnidadDidactica> getUnidadesDidacticas() {
+        return unidadesDidacticas;
+    }
+
+    public void setUnidadesDidacticas(List<UnidadDidactica> unidadesDidacticas) {
+        this.unidadesDidacticas = unidadesDidacticas;
+    }
+
+    public List<ConvocatoriaExamen> getConvocatorias() {
+        return convocatorias;
+    }
+
+    public void setConvocatorias(List<ConvocatoriaExamen> convocatorias) {
+        this.convocatorias = convocatorias;
     }
 
     @Override
     public String toString() {
-        return "Enunciado{" +
-                "id=" + id +
-                ", descripcion='" + descripcion + '\'' +
-                ", nivel=" + nivel +
-                ", disponible=" + disponible +
-                ", ruta='" + ruta + '\'' +
-                '}';
+
+        return "Enunciado{"
+                + "id=" + id
+                + ", descripcion='" + descripcion + '\''
+                + ", nivel=" + nivel
+                + ", disponible=" + disponible
+                + ", ruta='" + ruta + '\''
+                + '}';
     }
+
 }

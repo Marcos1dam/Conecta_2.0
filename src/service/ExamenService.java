@@ -7,9 +7,13 @@ package service;
 
 import dao.Dao;
 import dao.DaoImplementacion;
+import excepciones.DAOException;
+import excepciones.EntityNotFoundException;
+import excepciones.ExamenException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.bind.ValidationException;
 import modelo.ConvocatoriaExamen;
 import modelo.Dificultad;
 import modelo.Enunciado;
@@ -55,7 +59,7 @@ public class ExamenService {
     }
 
     public void crearUnidadDidactica(String acronimo, String titulo, String evaluacion, String descripcion)
-            throws ExamenException {
+            throws ExamenException, ValidationException {
 
         LOGGER.info("Iniciando creación de unidad didáctica: " + acronimo);
 
@@ -86,7 +90,7 @@ public class ExamenService {
 
     public void crearEnunciado(String descripcion, Dificultad nivel, String ruta,
             List<Integer> unidadesDidacticasIds, String convocatoria)
-            throws ExamenException {
+            throws ExamenException, ValidationException {
 
         LOGGER.info("Iniciando creación de enunciado: " + descripcion.substring(0, Math.min(50, descripcion.length())));
 
@@ -121,30 +125,30 @@ public class ExamenService {
 
         // OPERACIÓN COMPLEJA: REQUIERE MÚLTIPLES OPERACIONES DAO
         try {
-            // 1. Crear el enunciado
-            Enunciado enunciado = new Enunciado(descripcion, nivel, ruta);
-            dao.insertarEnunciado(enunciado);
+        // 1. Crear el enunciado
+        Enunciado enunciado = new Enunciado(descripcion, nivel, ruta);
+        dao.insertarEnunciado(enunciado);
 
-            // 2. Asociar con las unidades didácticas
-            for (Integer unidadId : unidadesDidacticasIds) {
-                dao.asociarEnunciadoConUnidadDidactica(enunciado.getId(), unidadId);
-            }
+        // 2. Asociar con las unidades didácticas
+        for (Integer unidadId : unidadesDidacticasIds) {
+            dao.asociarEnunciadoConUnidadDidactica(enunciado.getId(), unidadId);
+        }
 
-            // 3. Asociar con la convocatoria si se proporciona
-            if (convocatoria != null && !convocatoria.trim().isEmpty()) {
-                dao.asignarEnunciadoAConvocatoria(convocatoria.trim(), enunciado.getId());
-            }
+        // 3. Asociar con la convocatoria si se proporciona
+        if (convocatoria != null && !convocatoria.trim().isEmpty()) {
+            dao.asignarEnunciadoAConvocatoria(convocatoria.trim(), enunciado.getId());
+        }
 
-            LOGGER.info("Enunciado creado y asociado exitosamente: ID " + enunciado.getId());
+        LOGGER.info("Enunciado creado y asociado exitosamente: ID " + enunciado.getId());
 
         } catch (DAOException e) {
             LOGGER.log(Level.SEVERE, "Error en operación compleja de crear enunciado", e);
             throw new ExamenException("Error al crear enunciado: " + e.getMessage(), e);
-        }
+    }
     }
 
     public void asignarEnunciadoAConvocatoria(int enunciadoId, String convocatoria)
-            throws ExamenException {
+            throws ExamenException, ValidationException {
 
         LOGGER.info("Asignando enunciado " + enunciadoId + " a convocatoria " + convocatoria);
 
@@ -170,20 +174,21 @@ public class ExamenService {
 
         LOGGER.info("Enunciado " + enunciadoId + " asignado exitosamente a convocatoria " + convocatoria);
     }
-    
+
     /**
      * Reset de la instancia Singleton (solo para testing)
      */
     public static void resetInstance() {
         synchronized (lock) {
             if (instance != null) {
-                try {
-                    instance.cerrarRecursos();
-                } catch (ExamenException e) {
-                    LOGGER.log(Level.WARNING, "Error al cerrar recursos durante reset", e);
-                }
+                instance.cerrarRecursos();
                 instance = null;
             }
         }
     }
+
+    private void cerrarRecursos() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
