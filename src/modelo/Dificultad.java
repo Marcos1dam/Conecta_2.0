@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package service;
+package modelo;
 
 /**
  *
  * @author juanm
  */
-public class examenService {
-    
+public enum Dificultad {
+    ALTA, MEDIA, BAJA
 }
