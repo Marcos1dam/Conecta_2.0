@@ -9,6 +9,6 @@ package service;
  *
  * @author juanm
  */
-public class examenService {
+public class ExamenService {
     
 }

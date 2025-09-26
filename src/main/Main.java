@@ -5,6 +5,10 @@
  */
 package main;
 
+import dao.Dao;
+import service.ExamenService;
+import utilidades.Utilidades;
+
 /**
  *
  * @author juanm
@@ -24,7 +28,7 @@ public class Main {
      */
     private Main() {
         // Inicializar dependencias (también pueden ser Singleton)
-        this.dao = DaoImplementacion.getInstance();
+        this.dao = DaoImplementMySQL.getInstance();
         this.examenService = ExamenService.getInstance();
     }
      /**
