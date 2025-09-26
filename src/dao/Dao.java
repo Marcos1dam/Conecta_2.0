@@ -9,10 +9,38 @@ package dao;
  *
  * @author juanm
  */
-<<<<<<< HEAD
-public class Dao {
-=======
 public interface Dao {
->>>>>>> marcos
-    
+
+    // =================== OPERACIONES DE GESTIÓN ===================
+    /**
+     * Probar la conexión a la base de datos
+     *
+     * @throws DAOException Si no se puede establecer conexión
+     */
+    void probarConexion();
+
+    /**
+     * Cerrar todos los recursos de conexión Importante para el patrón Singleton
+     * al finalizar la aplicación
+     *
+     * @throws DAOException Si ocurre un error al cerrar recursos
+     */
+    void cerrarRecursos();
+
+    /**
+     * Verificar si hay una conexión activa
+     *
+     * @return true si hay conexión activa, false en caso contrario
+     */
+    boolean isConnected();
+
+    /**
+     * Obtener estadísticas del DAO (para debugging y monitoreo)
+     *
+     * @return String con información del estado del DAO
+     */
+    default String obtenerEstadisticas() {
+        return "DAO Singleton - Estado: " + (isConnected() ? "Conectado" : "Desconectado");
+    }
+
 }

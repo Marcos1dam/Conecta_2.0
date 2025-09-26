@@ -28,7 +28,7 @@ public class Main {
      */
     private Main() {
         // Inicializar dependencias (también pueden ser Singleton)
-        this.dao = DaoImplementacion.getInstance();
+        this.dao = DaoImplementMySQL.getInstance();
         this.examenService = ExamenService.getInstance();
     }
      /**

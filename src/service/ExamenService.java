@@ -6,13 +6,14 @@
 package service;
 
 import dao.Dao;
-import dao.DaoImplementacion;
+import dao.DaoimplementMySQL;
 import java.util.logging.Logger;
 
 /**
  *
  * @author juanm
  */
+
 public class ExamenService {
 
     private static final Logger LOGGER = Logger.getLogger(ExamenService.class.getName());
@@ -29,7 +30,7 @@ public class ExamenService {
      * el DAO
      */
     private ExamenService() {
-        this.dao = DaoImplementacion.getInstance(); // DAO Singleton
+        this.dao = DaoimplementMySQL.getInstance(); // DAO Singleton
         LOGGER.info("ExamenService Singleton inicializado");
     }
 

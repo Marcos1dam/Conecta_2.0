@@ -1,3 +1,7 @@
+/*
+ * Clase Utilidades corregida y compatible con el Main
+ * Mantiene métodos originales + agrega métodos necesarios para el Main
+ */
 package utilidades;
 
 import java.io.BufferedReader;
@@ -13,11 +17,15 @@ import java.time.format.DateTimeParseException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+/**
+ * Clase Utilidades mejorada Compatible con patrón Singleton y Main corregido
+ */
 public class Utilidades {
 
     // Scanner único para toda la clase (mejor práctica)
     private static final Scanner scanner = new Scanner(System.in);
 
+    // =================== MÉTODOS NECESARIOS PARA EL MAIN ===================
     /**
      * Leer String simple (método requerido por Main.java)
      *
@@ -55,6 +63,263 @@ public class Utilidades {
         }
     }
 
+    // =================== MÉTODOS ORIGINALES (MANTENIDOS) ===================
+    /**
+     * Método original para introducir cadena
+     */
+    public static String introducirCadena(String mensaje) {
+        System.out.println(mensaje);
+        try {
+            return scanner.next();
+        } catch (NoSuchElementException er) {
+            System.out.println("Error al introducir datos");
+            System.exit(0);
+            return "";
+        }
+    }
+
+    /**
+     * Leer String con longitud máxima (método original)
+     */
+    public static String leerString(int x, String message) {
+        String cadena = null;
+        boolean ok;
+        do {
+            ok = true;
+            System.out.print(message);
+            try {
+                cadena = scanner.nextLine().trim();
+                if (cadena.length() > x) {
+                    System.out.println("❌ Error: máximo " + x + " caracteres permitidos.");
+                    ok = false;
+                }
+            } catch (Exception e) {
+                System.out.println("❌ Error al leer datos.");
+                ok = false;
+            }
+        } while (!ok);
+        return cadena;
+    }
+
+    /**
+     * Leer float (método original mejorado)
+     */
+    public static float leerFloat(String message) {
+        while (true) {
+            try {
+                System.out.print(message);
+                String input = scanner.nextLine().trim();
+                return Float.parseFloat(input);
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️ Error: ingrese un número decimal válido.");
+            } catch (NoSuchElementException e) {
+                System.out.println("❌ Error al leer datos");
+                return 0.0f;
+            }
+        }
+    }
+
+    /**
+     * Leer respuesta booleana (método original)
+     */
+    public static boolean leerRespuesta(String message) {
+        String respuesta;
+        do {
+            System.out.print(message + " (si/no, s/n, 1/0, true/false): ");
+            respuesta = scanner.nextLine().toLowerCase().trim();
+        } while (!respuesta.equals("0") && !respuesta.equals("1")
+                && !respuesta.equals("si") && !respuesta.equals("no")
+                && !respuesta.equals("s") && !respuesta.equals("n")
+                && !respuesta.equals("true") && !respuesta.equals("false"));
+
+        return respuesta.equals("1") || respuesta.equals("si")
+                || respuesta.equals("s") || respuesta.equals("true");
+    }
+
+    /**
+     * Leer entero en rango (método original)
+     */
+    public static int leerInt(int min, int max, String message) {
+        int num;
+        boolean ok;
+        do {
+            try {
+                ok = true;
+                System.out.print(message + " (entre " + min + " y " + max + "): ");
+                String input = scanner.nextLine().trim();
+                num = Integer.parseInt(input);
+
+                if (num < min || num > max) {
+                    System.out.println("⚠️ Dato fuera de rango. Debe estar entre " + min + " y " + max);
+                    ok = false;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️ Debe introducir un número entero.");
+                ok = false;
+                num = min; // Valor por defecto para continuar el bucle
+            }
+        } while (!ok);
+        return num;
+    }
+
+    /**
+     * Leer float en rango (método original)
+     */
+    public static float leerFloat(float min, float max, String message) {
+        float numero;
+        boolean ok;
+        do {
+            try {
+                ok = true;
+                System.out.print(message + " (entre " + min + " y " + max + "): ");
+                String input = scanner.nextLine().trim();
+                numero = Float.parseFloat(input);
+
+                if (numero < min || numero > max) {
+                    System.out.println("⚠️ Dato fuera de rango. Debe estar entre " + min + " y " + max);
+                    ok = false;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️ Debe introducir un número decimal.");
+                ok = false;
+                numero = min; // Valor por defecto para continuar el bucle
+            }
+        } while (!ok);
+        return numero;
+    }
+
+    /**
+     * Leer un carácter (método original)
+     */
+    public static char leerChar(String message) {
+        boolean error;
+        String letra;
+        do {
+            error = false;
+            System.out.print(message);
+            letra = scanner.nextLine().trim();
+            if (letra.length() != 1) {
+                System.out.println("❌ Error: debe introducir exactamente un carácter.");
+                error = true;
+            }
+        } while (error);
+        return letra.charAt(0);
+    }
+
+    /**
+     * Leer fecha en formato dd-MM-yyyy (método original mejorado)
+     */
+    public static LocalDate pidoFechaDMA(String message) {
+        String fechaStr;
+        boolean valida;
+        LocalDate fecha = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        do {
+            valida = true;
+            System.out.print(message + " (formato dd-MM-yyyy): ");
+            fechaStr = scanner.nextLine().trim();
+            try {
+                fecha = LocalDate.parse(fechaStr, formatter);
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Error: formato de fecha incorrecto. Use dd-MM-yyyy (ejemplo: 25-12-2024)");
+                valida = false;
+            }
+        } while (!valida);
+        return fecha;
+    }
+
+    /**
+     * Leer fecha en formato yyyy-MM-dd (para el Main que espera este formato)
+     */
+    public static LocalDate leerFecha(String message) {
+        String fechaStr;
+        boolean valida;
+        LocalDate fecha = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        do {
+            valida = true;
+            System.out.print(message);
+            fechaStr = scanner.nextLine().trim();
+            try {
+                fecha = LocalDate.parse(fechaStr, formatter);
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Error: formato de fecha incorrecto. Use yyyy-MM-dd (ejemplo: 2024-12-25)");
+                valida = false;
+            }
+        } while (!valida);
+        return fecha;
+    }
+
+    /**
+     * Leer carácter de un array válido (método original)
+     */
+    public static char leerCharArray(char[] caracteres, String message) {
+        boolean error;
+        String letra;
+        char resultado = 0;
+
+        do {
+            error = false;
+            System.out.print(message + " (opciones válidas: ");
+            for (int i = 0; i < caracteres.length; i++) {
+                System.out.print(caracteres[i]);
+                if (i < caracteres.length - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.print("): ");
+
+            letra = scanner.nextLine().trim();
+            if (letra.length() != 1) {
+                System.out.println("❌ Error: debe introducir exactamente un carácter.");
+                error = true;
+            } else {
+                resultado = letra.toUpperCase().charAt(0);
+                boolean encontrado = false;
+                for (char c : caracteres) {
+                    if (Character.toUpperCase(c) == resultado) {
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) {
+                    error = true;
+                    System.out.println("❌ Error: el carácter introducido no es válido.");
+                }
+            }
+        } while (error);
+        return resultado;
+    }
+
+    /**
+     * Calcular número de objetos en un fichero (método original mejorado)
+     */
+    public static int calculoFichero(File archivo) {
+        int contador = 0;
+        if (archivo.exists()) {
+            try (FileInputStream fis = new FileInputStream(archivo);
+                    ObjectInputStream ois = new ObjectInputStream(fis)) {
+
+                while (true) {
+                    try {
+                        Object objeto = ois.readObject();
+                        contador++;
+                    } catch (EOFException e) {
+                        // Final del archivo alcanzado
+                        break;
+                    }
+                }
+
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("⚠️ Error al leer el archivo: " + e.getMessage());
+            }
+        }
+        return contador;
+    }
+
+    // =================== MÉTODOS DE UTILIDAD ADICIONALES ===================
     /**
      * Pausar hasta que el usuario presione Enter
      */
@@ -145,227 +410,4 @@ public class Utilidades {
         }
         return new String(array);
     }
-
-    // Utilidad para leer cadenas
-    public static String introducirCadena(String mensaje) {
-        Scanner sc = new Scanner(System.in);
-
-        String cadena = "";
-        System.out.println(mensaje);
-
-        try {
-            cadena = sc.next();
-        } catch (NoSuchElementException er) {
-            System.out.println("Error al introducir datos");
-            System.exit(0);
-        }
-        // sc.close();
-        return cadena;
-    }
-
-    // Utilidad para leer un real
-    public static float leerFloat(String message) {
-        float n = 0;
-        boolean ok;
-
-        do {
-            try {
-                ok = true;
-                n = Float.parseFloat(introducirCadena(message));
-            } catch (NumberFormatException e) {
-                System.out.println("te equivocaste wey, intentalo otra vez: ");
-                ok = false;
-            }
-        } while (!ok);
-
-        return n;
-    }
-
-    // Utilidad para leer un entero
-    /*public static int leerInt(String message) {
-        int n = -1;
-        boolean ok;
-
-        do {
-            try {
-                ok = true;
-                n = Integer.parseInt(introducirCadena(message));
-            } catch (NumberFormatException e) {
-                System.out.println("No has introducido un entero, intentalo otra vez: ");
-                ok = false;
-            }
-        } while (!ok);
-
-        return n;
-    }*/
-
-    // Leer un string
-    public static String leerString(int x, String message) {
-        String cadena = null;
-        boolean ok;
-        do {
-            ok = true;
-            cadena = introducirCadena(message);
-            if (cadena.length() > x) {
-                System.out.println("Error al introducir datos. ");
-                ok = false;
-            }
-        } while (!ok);
-        return cadena;
-    }
-
-    // Leer una respuesta
-    public static boolean leerRespuesta(String message) {
-        String respu;
-        do {
-            respu = introducirCadena(message).toLowerCase();
-        } while (!respu.equals("0") && !respu.equals("1") && !respu.equals("si") && !respu.equals("no")
-                && !respu.equals("s") && !respu.equals("n") && !respu.equals("true") && !respu.equals("false"));
-        if (respu.equals("1") || respu.equals("si") || respu.equals("s") || respu.equals("true")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // leer int entre un rango
-    public static int leerInt(int x, int y, String message) {
-        int num = 0;
-        boolean ok;
-        do {
-            try {
-                ok = true;
-                num = Integer.parseInt(introducirCadena(message));
-
-            } catch (NumberFormatException e) {
-                System.out.println("Hay que introducir numeros");
-                ok = false;
-                num = x;
-
-            }
-            if (num < x || num > y) {
-                System.out.println("Dato fuera de rango, introduce entre " + x + " y " + y);
-                ok = false;
-            }
-        } while (!ok);
-        return num;
-    }
-
-    // leer float entre un rango
-    public static float leerFloat(float x, float y, String message) {
-        float fNumero = 0;
-        boolean ok;
-        do {
-            try {
-                ok = true;
-                fNumero = Float.parseFloat(introducirCadena(message));
-            } catch (NumberFormatException e) {
-                System.out.println("Hay que introducir numeros. Vuelve aintroducir: ");
-                ok = false;
-                fNumero = x;
-            }
-            if (fNumero < x || fNumero > y) {
-                System.out.println("Dato fuera de rando. Introduce entre " + x + " y " + y);
-                ok = false;
-            }
-        } while (!ok);
-        return fNumero;
-    }
-
-    // leer caracter
-    public static char leerChar(String message) {
-        boolean error = false;
-        String letra;
-
-        do {
-            error = false;
-            letra = introducirCadena(message);
-            if (letra.length() != 1) {
-                System.out.println("Error, introduce un caracter: ");
-                error = true;
-            }
-
-        } while (error);
-        return letra.charAt(0);
-    }
-
-    // Pido fecha
-    public static LocalDate pidoFechaDMA(String message) {
-        String fechaS;
-        boolean hay;
-        LocalDate fecha = null;
-        // parseador
-        DateTimeFormatter formateador = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        do {
-            hay = true;
-            fechaS = Utilidades.introducirCadena(message + " en formato dd-mm-aaaa: ");
-            try {
-                fecha = LocalDate.parse(fechaS, formateador);
-            } catch (DateTimeParseException p) {
-                System.out.println("Error... formato de fecha introducido incorrecto.");
-                hay = false;
-            }
-        } while (!hay);
-        return fecha;
-    }
-
-    public static char leerCharArray(char caracteres[], String message) {
-        int i;
-        boolean error = false;
-        String letra;
-        char aux = 0;
-
-        do {
-            error = false;
-            letra = introducirCadena(message);
-            if (letra.length() != 1) {
-                System.out.println("Error, introduce un caracter: ");
-                error = true;
-            } else {
-                aux = letra.toUpperCase().charAt(0);
-                for (i = 0; i < caracteres.length; i++) {
-                    if (Character.toUpperCase(caracteres[i]) == Character.toUpperCase(aux)) {
-                        break;
-                    }
-                }
-                if (i == caracteres.length) {
-                    error = true;
-                    System.out.println("Error, el caracter introducido no es valido. ");
-                }
-            }
-        } while (error);
-        return aux;
-    }
-
-    // Devuelve el n�mero de objetos de un fichero
-    public static int calculoFichero(File fich) {
-        int cont = 0;
-        if (fich.exists()) {
-            FileInputStream fis = null;
-            ObjectInputStream ois = null;
-            try {
-                fis = new FileInputStream(fich);
-                ois = new ObjectInputStream(fis);
-
-                Object aux = ois.readObject();
-
-                while (aux != null) {
-                    cont++;
-                    aux = ois.readObject();
-                }
-            } catch (EOFException e1) {
-                System.out.println("Has acabado de leer, tienes " + cont + " objetos");
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-            try {
-                ois.close();
-                fis.close();
-            } catch (IOException e) {
-                System.out.println("Error al cerrar los flujos");
-            }
-        }
-        return cont;
-    }
-
 }
