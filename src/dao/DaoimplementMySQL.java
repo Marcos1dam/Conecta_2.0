@@ -8,6 +8,9 @@ package dao;
 import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import excepciones.DAOException;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
+import modelo.ConvocatoriaExamen;
+import modelo.Dificultad;
+import modelo.Enunciado;
 import modelo.UnidadDidactica;
 
 /**
@@ -80,8 +86,44 @@ public class DaoimplementMySQL implements Dao {
         return instance;
     }
 
+    // =================== GESTIÓN DE CONEXIONES ===================
+    private void openConnection() throws SQLException {
+        try {
+            if (con == null || con.isClosed()) {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                String connectionUrl = urlDB;
+                con = DriverManager.getConnection(connectionUrl, userBD, passwordDB);
+                LOGGER.fine("Conexión establecida");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver MySQL no encontrado", e);
+        }
+    }
+
+    private void closeConnection() throws SQLException {
+        if (stmt != null) {
+            stmt.close();
+        }
+        if (con != null) {
+            con.close();
+        }
+    }
+
+    public Connection getConnection() throws SQLException {
+        openConnection();
+        return con;
+    }
+
+    @Override
+    public boolean isConnected() {
+        try {
+            return con != null && !con.isClosed() && con.isValid(5);
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
     // =================== UNIDAD DIDÁCTICA ===================
-    
     @Override
     public void insertarUnidadDidactica(UnidadDidactica unidad) throws DAOException {
         String sql = "INSERT INTO UnidadDidactica (acronimo, titulo, evaluacion, descripcion) VALUES (?, ?, ?, ?)";
@@ -245,51 +287,59 @@ public class DaoimplementMySQL implements Dao {
         return unidades;
     }
 
-    // =================== GESTIÓN DE CONEXIONES ===================
-    private void openConnection() throws SQLException {
+    // =================== MÉTODOS AUXILIARES ===================
+    private void guardarTodasLasConvocatorias(List<ConvocatoriaExamen> convocatorias) throws DAOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_CONVOCATORIAS))) {
+            oos.writeObject(convocatorias);
+        } catch (IOException e) {
+            throw new DAOException("Error al guardar archivo de convocatorias: " + e.getMessage(), e);
+        }
+    }
+
+    private UnidadDidactica mapearUnidadDidactica(ResultSet rs) throws SQLException {
+        UnidadDidactica unidad = new UnidadDidactica();
+        unidad.setId(rs.getInt("id"));
+        unidad.setAcronimo(rs.getString("acronimo"));
+        unidad.setTitulo(rs.getString("titulo"));
+        unidad.setEvaluacion(rs.getString("evaluacion"));
+        unidad.setDescripcion(rs.getString("descripcion"));
+        return unidad;
+    }
+
+    private Enunciado mapearEnunciado(ResultSet rs) throws SQLException {
+        Enunciado enunciado = new Enunciado();
+        enunciado.setId(rs.getInt("id"));
+        enunciado.setDescripcion(rs.getString("descripcion"));
+        enunciado.setNivel(Dificultad.valueOf(rs.getString("nivel_dificultad")));
+        enunciado.setDisponible(rs.getBoolean("disponible"));
+        enunciado.setRuta(rs.getString("ruta"));
+        return enunciado;
+    }
+
+    @Override
+    public void probarConexion() throws DAOException {
         try {
-            if (con == null || con.isClosed()) {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                String connectionUrl = urlDB;
-                con = DriverManager.getConnection(connectionUrl, userBD, passwordDB);
-                LOGGER.fine("Conexión establecida");
+            openConnection();
+            if (isConnected()) {
+                System.out.println("✅ Conexión DAO Singleton establecida correctamente");
+                System.out.println("📊 Hash de instancia DAO: " + this.hashCode());
+                System.out.println("🔗 URL: " + urlDB);
+                System.out.println("👤 Usuario: " + userBD);
             }
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Driver MySQL no encontrado", e);
-        }
-    }
-
-    private void closeConnection() throws SQLException {
-        if (stmt != null) {
-            stmt.close();
-        }
-        if (con != null) {
-            con.close();
-        }
-    }
-
-    public Connection getConnection() throws SQLException {
-        openConnection();
-        return con;
-    }
-
-    @Override
-    public boolean isConnected() {
-        try {
-            return con != null && !con.isClosed() && con.isValid(5);
+            closeConnection();
         } catch (SQLException e) {
-            return false;
+            throw new DAOException("Error al probar conexión: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void cerrarRecursos() {
-
-    }
-
-    @Override
-    public void probarConexion() {
-
+    public void cerrarRecursos() throws DAOException {
+        try {
+            closeConnection();
+            LOGGER.info("Recursos DAO cerrados correctamente");
+        } catch (SQLException e) {
+            throw new DAOException("Error al cerrar recursos: " + e.getMessage(), e);
+        }
     }
 
 }
