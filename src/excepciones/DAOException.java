@@ -12,18 +12,14 @@ import java.sql.SQLException;
  *
  * @author Alexander
  */
-public class DAOException extends Exception{
+public class DAOException extends Exception {
 
-    public DAOException(String error_al_insertar_la_unidad_didáctica) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public DAOException(String message) {
+        super(message);
     }
 
-    public DAOException(String string, SQLException e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public DAOException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public DAOException(String string, IOException e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }

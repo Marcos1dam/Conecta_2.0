@@ -8,8 +8,10 @@ package dao;
 import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import excepciones.DAOException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -285,6 +287,393 @@ public class DaoimplementMySQL implements Dao {
         }
 
         return unidades;
+    }
+
+    // =================== ENUNCIADO ===================
+    @Override
+    public void insertarEnunciado(Enunciado enunciado) throws DAOException {
+        String sql = "INSERT INTO Enunciado (descripcion, nivel_dificultad, disponible, ruta) VALUES (?, ?, ?, ?)";
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            stmt.setString(1, enunciado.getDescripcion());
+            stmt.setString(2, enunciado.getNivel().name());
+            stmt.setBoolean(3, enunciado.isDisponible());
+            stmt.setString(4, enunciado.getRuta());
+
+            int filasAfectadas = stmt.executeUpdate();
+            if (filasAfectadas == 0) {
+                throw new DAOException("Error al insertar el enunciado");
+            }
+
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                enunciado.setId(generatedKeys.getInt(1));
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al insertar enunciado: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+    }
+
+    @Override
+    public void actualizarEnunciado(Enunciado enunciado) throws DAOException {
+        String sql = "UPDATE Enunciado SET descripcion = ?, nivel_dificultad = ?, disponible = ?, ruta = ? WHERE id = ?";
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+
+            stmt.setString(1, enunciado.getDescripcion());
+            stmt.setString(2, enunciado.getNivel().name());
+            stmt.setBoolean(3, enunciado.isDisponible());
+            stmt.setString(4, enunciado.getRuta());
+            stmt.setInt(5, enunciado.getId());
+
+            int filasAfectadas = stmt.executeUpdate();
+            if (filasAfectadas == 0) {
+                throw new DAOException("No se encontró el enunciado con ID: " + enunciado.getId());
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al actualizar enunciado: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+    }
+
+    @Override
+    public void eliminarEnunciado(int id) throws DAOException {
+        String sql = "DELETE FROM Enunciado WHERE id = ?";
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, id);
+
+            int filasAfectadas = stmt.executeUpdate();
+            if (filasAfectadas == 0) {
+                throw new DAOException("No se encontró el enunciado con ID: " + id);
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al eliminar enunciado: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+    }
+
+    @Override
+    public Enunciado buscarEnunciadoPorId(int id) throws DAOException {
+        String sql = "SELECT * FROM Enunciado WHERE id = ?";
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, id);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapearEnunciado(rs);
+            }
+            return null;
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al buscar enunciado por ID: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+    }
+
+    @Override
+    public List<Enunciado> buscarTodosLosEnunciados() throws DAOException {
+        String sql = "SELECT * FROM Enunciado ORDER BY id";
+        List<Enunciado> enunciados = new ArrayList<Enunciado>();
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                enunciados.add(mapearEnunciado(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al buscar todos los enunciados: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+
+        return enunciados;
+    }
+
+    @Override
+    public List<Enunciado> buscarEnunciadosPorUnidadDidactica(int unidadDidacticaId) throws DAOException {
+        String sql = "SELECT e.* FROM Enunciado e "
+                + "INNER JOIN EnunciadoUnidadDidactica eud ON e.id = eud.enunciado_id "
+                + "WHERE eud.unidad_didactica_id = ? ORDER BY e.id";
+
+        List<Enunciado> enunciados = new ArrayList<Enunciado>();
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, unidadDidacticaId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                enunciados.add(mapearEnunciado(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al buscar enunciados por unidad didáctica: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+
+        return enunciados;
+    }
+
+    @Override
+    public void asociarEnunciadoConUnidadDidactica(int enunciadoId, int unidadDidacticaId) throws DAOException {
+        String sql = "INSERT IGNORE INTO EnunciadoUnidadDidactica (enunciado_id, unidad_didactica_id) VALUES (?, ?)";
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, enunciadoId);
+            stmt.setInt(2, unidadDidacticaId);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al asociar enunciado con unidad didáctica: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+    }
+
+    @Override
+    public void desasociarEnunciadoDeUnidadDidactica(int enunciadoId, int unidadDidacticaId) throws DAOException {
+        String sql = "DELETE FROM EnunciadoUnidadDidactica WHERE enunciado_id = ? AND unidad_didactica_id = ?";
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, enunciadoId);
+            stmt.setInt(2, unidadDidacticaId);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al desasociar enunciado de unidad didáctica: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+    }
+
+    @Override
+    public List<UnidadDidactica> buscarUnidadesDidacticasPorEnunciado(int enunciadoId) throws DAOException {
+        String sql = "SELECT ud.* FROM UnidadDidactica ud "
+                + "INNER JOIN EnunciadoUnidadDidactica eud ON ud.id = eud.unidad_didactica_id "
+                + "WHERE eud.enunciado_id = ? ORDER BY ud.acronimo";
+
+        List<UnidadDidactica> unidades = new ArrayList<UnidadDidactica>();
+
+        try {
+            openConnection();
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, enunciadoId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                unidades.add(mapearUnidadDidactica(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al buscar unidades didácticas por enunciado: " + e.getMessage(), e);
+        } finally {
+            try {
+                closeConnection();
+            } catch (SQLException e) {
+                /* ignorar */ }
+        }
+
+        return unidades;
+    }
+
+    // =================== CONVOCATORIA EXAMEN (ARCHIVO) ===================
+    @Override
+    public void insertarConvocatoriaExamen(ConvocatoriaExamen convocatoria) throws DAOException {
+        List<ConvocatoriaExamen> convocatorias = buscarTodasLasConvocatorias();
+
+        // Verificar si ya existe
+        for (ConvocatoriaExamen c : convocatorias) {
+            if (c.getConvocatoria().equals(convocatoria.getConvocatoria())) {
+                throw new DAOException("Ya existe una convocatoria con el nombre: " + convocatoria.getConvocatoria());
+            }
+        }
+
+        convocatorias.add(convocatoria);
+        guardarTodasLasConvocatorias(convocatorias);
+    }
+
+    @Override
+    public void actualizarConvocatoriaExamen(ConvocatoriaExamen convocatoria) throws DAOException {
+        List<ConvocatoriaExamen> convocatorias = buscarTodasLasConvocatorias();
+        boolean encontrada = false;
+
+        for (int i = 0; i < convocatorias.size(); i++) {
+            if (convocatorias.get(i).getConvocatoria().equals(convocatoria.getConvocatoria())) {
+                convocatorias.set(i, convocatoria);
+                encontrada = true;
+                break;
+            }
+        }
+
+        if (!encontrada) {
+            throw new DAOException("No se encontró la convocatoria: " + convocatoria.getConvocatoria());
+        }
+
+        guardarTodasLasConvocatorias(convocatorias);
+    }
+
+    @Override
+    public void eliminarConvocatoriaExamen(String convocatoria) throws DAOException {
+        List<ConvocatoriaExamen> convocatorias = buscarTodasLasConvocatorias();
+        boolean eliminada = false;
+
+        for (int i = 0; i < convocatorias.size(); i++) {
+            if (convocatorias.get(i).getConvocatoria().equals(convocatoria)) {
+                convocatorias.remove(i);
+                eliminada = true;
+                break;
+            }
+        }
+
+        if (!eliminada) {
+            throw new DAOException("No se encontró la convocatoria: " + convocatoria);
+        }
+
+        guardarTodasLasConvocatorias(convocatorias);
+    }
+
+    @Override
+    public ConvocatoriaExamen buscarConvocatoriaPorNombre(String convocatoria) throws DAOException {
+        List<ConvocatoriaExamen> convocatorias = buscarTodasLasConvocatorias();
+        for (ConvocatoriaExamen c : convocatorias) {
+            if (c.getConvocatoria().equals(convocatoria)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<ConvocatoriaExamen> buscarTodasLasConvocatorias() throws DAOException {
+        File archivo = new File(ARCHIVO_CONVOCATORIAS);
+        if (!archivo.exists()) {
+            return new ArrayList<ConvocatoriaExamen>();
+        }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+            @SuppressWarnings("unchecked")
+            List<ConvocatoriaExamen> convocatorias = (List<ConvocatoriaExamen>) ois.readObject();
+            return convocatorias;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new DAOException("Error al leer archivo de convocatorias: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void asignarEnunciadoAConvocatoria(String convocatoria, int enunciadoId) throws DAOException {
+        ConvocatoriaExamen conv = buscarConvocatoriaPorNombre(convocatoria);
+        if (conv == null) {
+            throw new DAOException("No se encontró la convocatoria: " + convocatoria);
+        }
+
+        // Verificar si ya está asignado
+        for (Enunciado e : conv.getEnunciados()) {
+            if (e.getId() == enunciadoId) {
+                throw new DAOException("El enunciado ya está asignado a esta convocatoria");
+            }
+        }
+
+        // Crear enunciado temporal con solo el ID
+        Enunciado enunciado = new Enunciado();
+        enunciado.setId(enunciadoId);
+        conv.getEnunciados().add(enunciado);
+
+        actualizarConvocatoriaExamen(conv);
+    }
+
+    @Override
+    public void desasignarEnunciadoDeConvocatoria(String convocatoria, int enunciadoId) throws DAOException {
+        ConvocatoriaExamen conv = buscarConvocatoriaPorNombre(convocatoria);
+        if (conv == null) {
+            throw new DAOException("No se encontró la convocatoria: " + convocatoria);
+        }
+
+        boolean eliminado = false;
+        for (int i = 0; i < conv.getEnunciados().size(); i++) {
+            if (conv.getEnunciados().get(i).getId() == enunciadoId) {
+                conv.getEnunciados().remove(i);
+                eliminado = true;
+                break;
+            }
+        }
+
+        if (!eliminado) {
+            throw new DAOException("El enunciado no estaba asignado a esta convocatoria");
+        }
+
+        actualizarConvocatoriaExamen(conv);
+    }
+
+    @Override
+    public List<ConvocatoriaExamen> buscarConvocatoriasPorEnunciado(int enunciadoId) throws DAOException {
+        List<ConvocatoriaExamen> todasConvocatorias = buscarTodasLasConvocatorias();
+        List<ConvocatoriaExamen> resultado = new ArrayList<ConvocatoriaExamen>();
+
+        for (ConvocatoriaExamen conv : todasConvocatorias) {
+            for (Enunciado e : conv.getEnunciados()) {
+                if (e.getId() == enunciadoId) {
+                    resultado.add(conv);
+                    break;
+                }
+            }
+        }
+
+        return resultado;
     }
 
     // =================== MÉTODOS AUXILIARES ===================
