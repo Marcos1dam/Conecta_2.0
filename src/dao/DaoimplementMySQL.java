@@ -60,8 +60,6 @@ public class DaoimplementMySQL implements Dao {
 
     /**
      * Obtener instancia Singleton
-     *
-     * @return cargado
      */
     public static DaoimplementMySQL getInstance() {
         if (instance == null) {

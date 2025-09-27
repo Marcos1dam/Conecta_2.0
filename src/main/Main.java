@@ -6,6 +6,7 @@
 package main;
 
 import dao.Dao;
+import dao.DaoimplementMySQL;
 import service.ExamenService;
 import utilidades.Utilidades;
 
@@ -28,7 +29,7 @@ public class Main {
      */
     private Main() {
         // Inicializar dependencias (también pueden ser Singleton)
-        this.dao = DaoImplementMySQL.getInstance();
+        this.dao = DaoimplementMySQL.getInstance();
         this.examenService = ExamenService.getInstance();
     }
      /**
@@ -45,6 +46,7 @@ public class Main {
         return instance;
     }
     public static void main(String[] args) {
+        
          System.out.println("🚀 Iniciando Sistema de Gestión de Exámenes (Singleton Pattern)");
         
         // Obtener la única instancia del controlador
