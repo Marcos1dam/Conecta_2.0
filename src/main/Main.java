@@ -15,96 +15,93 @@ import utilidades.Utilidades;
  * @author juanm
  */
 public class Main {
-    
+
     private static Main instance;                     // Única instancia
     private static final Object lock = new Object(); // Para thread-safety
-    
+
     // DEPENDENCIAS - También usando Singleton
     private final Dao dao;
     private final ExamenService examenService;
-    
+
     /**
-     * Constructor privado - CLAVE DEL SINGLETON
-     * No se puede instanciar desde fuera de la clase
+     * Constructor privado - CLAVE DEL SINGLETON No se puede instanciar desde
+     * fuera de la clase
      */
     private Main() {
         // Inicializar dependencias (también pueden ser Singleton)
         this.dao = DaoimplementMySQL.getInstance();
         this.examenService = ExamenService.getInstance();
     }
-     /**
+
+    /**
      * Método para obtener la única instancia
      */
     public static Main getInstance() {
-        if (instance == null) {                    
-            synchronized (lock) {                  
-                if (instance == null) {           
+        if (instance == null) {
+            synchronized (lock) {
+                if (instance == null) {
                     instance = new Main();        // Crear la única instancia
                 }
             }
         }
         return instance;
     }
+
     public static void main(String[] args) {
-        
-         System.out.println("🚀 Iniciando Sistema de Gestión de Exámenes (Singleton Pattern)");
-        
+
+        System.out.println("🚀 Iniciando Sistema de Gestión de Exámenes (Singleton Pattern)");
+
         // Obtener la única instancia del controlador
         Main controlador = Main.getInstance();
-        
+
         // Iniciar la aplicación
         controlador.iniciarAplicacion();
     }
+
     public void iniciarAplicacion() {
         System.out.println("📋 Controlador Singleton inicializado: " + this.hashCode());
-        
+
         int opcion = 1;
-        
+
         do {
-            try {
-                mostrarMenu();
-                opcion = Utilidades.leerInt("🔹 Escoge la opción deseada: ");
-                
-                    switch (opcion) {
-                    case 1:
-                        crearUnidadDidactica();
-                        break;
-                    case 2:
-                        crearConvocatoria();
-                        break;
-                    case 3:
-                        crearEnunciado();
-                        break;
-                    case 4:
-                        consultarEnunciado();
-                        break;
-                    case 5:
-                        consultarConvocatoria();
-                        break;
-                    case 6:
-                        visualizarTextoAsociado();
-                        break;
-                    case 7:
-                        asignarEnunciado();
-                        break;
-                    case 8:
-                        mostrarEstadoSingleton();
-                        break;
-                    case 0:
-                        System.out.println("👋 Saliendo del programa...");
-                        break;
-                    default:
-                        System.out.println("❌ Opción inválida. Seleccione una opción válida.");
-                        break;
-                }
-                
-            } catch (Exception e) {
-                System.err.println("💥 Error: " + e.getMessage());
-                System.out.println("Presione Enter para continuar...");
+            mostrarMenu();
+            opcion = Utilidades.leerInt("🔹 Escoge la opción deseada: ");
+
+            switch (opcion) {
+                case 1:
+                    crearUnidadDidactica();
+                    break;
+                case 2:
+                    crearConvocatoria();
+                    break;
+                case 3:
+                    crearEnunciado();
+                    break;
+                case 4:
+                    consultarEnunciado();
+                    break;
+                case 5:
+                    consultarConvocatoria();
+                    break;
+                case 6:
+                    visualizarTextoAsociado();
+                    break;
+                case 7:
+                    asignarEnunciado();
+                    break;
+                case 8:
+                    mostrarEstadoSingleton();
+                    break;
+                case 0:
+                    System.out.println("👋 Saliendo del programa...");
+                    break;
+                default:
+                    System.out.println("❌ Opción inválida. Seleccione una opción válida.");
+                    break;
             }
-            
+
         } while (opcion != 0);
-        
+
         cerrarRecursos();
     }
 
@@ -123,7 +120,6 @@ public class Main {
         System.out.println("0. 🚪 Salir");
         System.out.println(Utilidades.repetir("=", 50));
     }
-
 
     private void crearUnidadDidactica() {
 
@@ -159,15 +155,16 @@ public class Main {
     private void mostrarEstadoSingleton() {
         System.out.println("\n🔧 DEMOSTRACIÓN PATRÓN SINGLETON");
         System.out.println(Utilidades.repetir("-", 35));
-        
+
         // Obtener otra "instancia" (será la misma)
         Main otraInstancia = Main.getInstance();
-        
+
         System.out.println("📊 Hash de esta instancia: " + this.hashCode());
         System.out.println("📊 Hash de 'otra' instancia: " + otraInstancia.hashCode());
         System.out.println("🔍 ¿Son la misma instancia? " + (this == otraInstancia ? "✅ SÍ" : "❌ NO"));
         System.out.println("💡 Esto demuestra que Singleton garantiza UNA SOLA INSTANCIA");
     }
+
     /**
      * Limpieza de recursos al cerrar la aplicación
      */
@@ -186,7 +183,7 @@ public class Main {
     public Dao getDao() {
         return dao;
     }
-    
+
     public ExamenService getExamenService() {
         return examenService;
     }
