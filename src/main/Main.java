@@ -7,6 +7,10 @@ package main;
 
 import dao.Dao;
 import dao.DaoimplementMySQL;
+import excepciones.ExamenException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.bind.ValidationException;
 import service.ExamenService;
 import utilidades.Utilidades;
 
@@ -15,56 +19,59 @@ import utilidades.Utilidades;
  * @author juanm
  */
 public class Main {
-    
+
     private static Main instance;                     // Única instancia
     private static final Object lock = new Object(); // Para thread-safety
-    
+
     // DEPENDENCIAS - También usando Singleton
     private final Dao dao;
     private final ExamenService examenService;
-    
+
     /**
-     * Constructor privado - CLAVE DEL SINGLETON
-     * No se puede instanciar desde fuera de la clase
+     * Constructor privado - CLAVE DEL SINGLETON No se puede instanciar desde
+     * fuera de la clase
      */
     private Main() {
         // Inicializar dependencias (también pueden ser Singleton)
         this.dao = DaoimplementMySQL.getInstance();
         this.examenService = ExamenService.getInstance();
     }
-     /**
+
+    /**
      * Método para obtener la única instancia
      */
     public static Main getInstance() {
-        if (instance == null) {                    
-            synchronized (lock) {                  
-                if (instance == null) {           
+        if (instance == null) {
+            synchronized (lock) {
+                if (instance == null) {
                     instance = new Main();        // Crear la única instancia
                 }
             }
         }
         return instance;
     }
+
     public static void main(String[] args) {
-         System.out.println("🚀 Iniciando Sistema de Gestión de Exámenes (Singleton Pattern)");
-        
+        System.out.println("🚀 Iniciando Sistema de Gestión de Exámenes (Singleton Pattern)");
+
         // Obtener la única instancia del controlador
         Main controlador = Main.getInstance();
-        
+
         // Iniciar la aplicación
         controlador.iniciarAplicacion();
     }
+
     public void iniciarAplicacion() {
         System.out.println("📋 Controlador Singleton inicializado: " + this.hashCode());
-        
+
         int opcion = 1;
-        
+
         do {
             try {
                 mostrarMenu();
                 opcion = Utilidades.leerInt("🔹 Escoge la opción deseada: ");
-                
-                    switch (opcion) {
+
+                switch (opcion) {
                     case 1:
                         crearUnidadDidactica();
                         break;
@@ -96,14 +103,14 @@ public class Main {
                         System.out.println("❌ Opción inválida. Seleccione una opción válida.");
                         break;
                 }
-                
+
             } catch (Exception e) {
                 System.err.println("💥 Error: " + e.getMessage());
                 System.out.println("Presione Enter para continuar...");
             }
-            
+
         } while (opcion != 0);
-        
+
         cerrarRecursos();
     }
 
@@ -123,9 +130,27 @@ public class Main {
         System.out.println(Utilidades.repetir("=", 50));
     }
 
-
     private void crearUnidadDidactica() {
+        System.out.println("\n🏗️ CREAR UNIDAD DIDÁCTICA");
+        System.out.println(Utilidades.repetir("-", 30));
 
+        try {
+            String acronimo = Utilidades.leerString("📌 Acrónimo: ");
+            String titulo = Utilidades.leerString("📋 Título: ");
+            String evaluacion = Utilidades.leerString("📊 Tipo de evaluación (Continua/Final/Mixta): ");
+            String descripcion = Utilidades.leerString("📄 Descripción: ");
+
+            try {
+                // Usar el servicio Singleton para crear la unidad
+                examenService.crearUnidadDidactica(acronimo, titulo, evaluacion, descripcion);
+            } catch (ValidationException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.println("✅ Unidad didáctica creada exitosamente!");
+
+        } catch (ExamenException e) {
+            System.err.println("❌ Error al crear unidad didáctica: " + e.getMessage());
+        }
     }
 
     private void crearConvocatoria() {
@@ -151,7 +176,7 @@ public class Main {
     private void asignarEnunciado() {
 
     }
-    
+
     /**
      * Método para demostrar el patrón Singleton
      */
@@ -166,8 +191,6 @@ public class Main {
         System.out.println("🔍 ¿Son la misma instancia? " + (this == otraInstancia ? "✅ SÍ" : "❌ NO"));
         System.out.println("💡 Esto demuestra que Singleton garantiza UNA SOLA INSTANCIA");
     }
-
-
 
     /**
      * Limpieza de recursos al cerrar la aplicación
@@ -188,9 +211,9 @@ public class Main {
         return dao;
 
     }
-    
+
     public ExamenService getExamenService() {
         return examenService;
     }
-    
+
 }
