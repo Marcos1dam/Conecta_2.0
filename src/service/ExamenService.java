@@ -6,7 +6,7 @@
 package service;
 
 import dao.Dao;
-import dao.DaoImplementacion;
+import dao.DaoimplementMySQL;
 import excepciones.DAOException;
 import excepciones.EntityNotFoundException;
 import excepciones.ExamenException;
@@ -19,10 +19,12 @@ import modelo.Dificultad;
 import modelo.Enunciado;
 import modelo.UnidadDidactica;
 
+
 /**
  *
  * @author juanm
  */
+
 public class ExamenService {
 
     private static final Logger LOGGER = Logger.getLogger(ExamenService.class.getName());
@@ -39,7 +41,8 @@ public class ExamenService {
      * el DAO
      */
     private ExamenService() {
-        this.dao = DaoImplementacion.getInstance(); // DAO Singleton
+        this.dao = DaoimplementMySQL.getInstance(); // DAO Singleton
+
         LOGGER.info("ExamenService Singleton inicializado");
     }
 
@@ -76,14 +79,24 @@ public class ExamenService {
         titulo = titulo.trim();
 
         // VERIFICAR UNICIDAD DEL ACRÓNIMO
-        UnidadDidactica existente = dao.buscarUnidadDidacticaPorAcronimo(acronimo);
+        UnidadDidactica existente = null;
+        try {
+            existente = dao.buscarUnidadDidacticaPorAcronimo(acronimo);
+        } catch (DAOException ex) {
+            Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         if (existente != null) {
             throw new ValidationException("Ya existe una unidad didáctica con el acrónimo: " + acronimo);
         }
 
         // CREAR Y PERSISTIR
         UnidadDidactica unidad = new UnidadDidactica(acronimo, titulo, evaluacion, descripcion);
-        dao.insertarUnidadDidactica(unidad);
+        try {
+            dao.insertarUnidadDidactica(unidad);
+        } catch (DAOException ex) {
+            Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         LOGGER.info("Unidad didáctica creada exitosamente: " + acronimo + " - " + titulo);
     }
@@ -109,7 +122,12 @@ public class ExamenService {
 
         // VERIFICAR QUE TODAS LAS UNIDADES DIDÁCTICAS EXISTAN
         for (Integer unidadId : unidadesDidacticasIds) {
-            UnidadDidactica unidad = dao.buscarUnidadDidacticaPorId(unidadId);
+            UnidadDidactica unidad = null;
+            try {
+                unidad = dao.buscarUnidadDidacticaPorId(unidadId);
+            } catch (DAOException ex) {
+                Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+            }
             if (unidad == null) {
                 throw new EntityNotFoundException("UnidadDidactica", unidadId);
             }
@@ -117,7 +135,12 @@ public class ExamenService {
 
         // VERIFICAR QUE LA CONVOCATORIA EXISTA (SI SE PROPORCIONA)
         if (convocatoria != null && !convocatoria.trim().isEmpty()) {
-            ConvocatoriaExamen conv = dao.buscarConvocatoriaPorNombre(convocatoria.trim());
+            ConvocatoriaExamen conv = null;
+            try {
+                conv = dao.buscarConvocatoriaPorNombre(convocatoria.trim());
+            } catch (DAOException ex) {
+                Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+            }
             if (conv == null) {
                 throw new EntityNotFoundException("ConvocatoriaExamen", convocatoria);
             }
@@ -153,13 +176,23 @@ public class ExamenService {
         LOGGER.info("Asignando enunciado " + enunciadoId + " a convocatoria " + convocatoria);
 
         // VERIFICAR QUE EL ENUNCIADO EXISTA
-        Enunciado enunciado = dao.buscarEnunciadoPorId(enunciadoId);
+        Enunciado enunciado = null;
+        try {
+            enunciado = dao.buscarEnunciadoPorId(enunciadoId);
+        } catch (DAOException ex) {
+            Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if (enunciado == null) {
             throw new EntityNotFoundException("Enunciado", enunciadoId);
         }
 
         // VERIFICAR QUE LA CONVOCATORIA EXISTA
-        ConvocatoriaExamen conv = dao.buscarConvocatoriaPorNombre(convocatoria);
+        ConvocatoriaExamen conv = null;
+        try {
+            conv = dao.buscarConvocatoriaPorNombre(convocatoria);
+        } catch (DAOException ex) {
+            Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if (conv == null) {
             throw new EntityNotFoundException("ConvocatoriaExamen", convocatoria);
         }
@@ -169,8 +202,12 @@ public class ExamenService {
             throw new ValidationException("El enunciado no está disponible para asignación");
         }
 
-        // REALIZAR LA ASIGNACIÓN
-        dao.asignarEnunciadoAConvocatoria(convocatoria, enunciadoId);
+        try {
+            // REALIZAR LA ASIGNACIÓN
+            dao.asignarEnunciadoAConvocatoria(convocatoria, enunciadoId);
+        } catch (DAOException ex) {
+            Logger.getLogger(ExamenService.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         LOGGER.info("Enunciado " + enunciadoId + " asignado exitosamente a convocatoria " + convocatoria);
     }
@@ -190,5 +227,6 @@ public class ExamenService {
     private void cerrarRecursos() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
 
 }

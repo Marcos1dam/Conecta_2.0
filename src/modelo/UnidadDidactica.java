@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package modelo;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

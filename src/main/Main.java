@@ -6,7 +6,7 @@
 package main;
 
 import dao.Dao;
-import dao.DaoImplementacion;
+import dao.DaoimplementMySQL;
 import service.ExamenService;
 import utilidades.Utilidades;
 
@@ -29,7 +29,7 @@ public class Main {
      */
     private Main() {
         // Inicializar dependencias (también pueden ser Singleton)
-        this.dao = DaoImplementacion.getInstance();
+        this.dao = DaoimplementMySQL.getInstance();
         this.examenService = ExamenService.getInstance();
     }
      /**
@@ -151,22 +151,24 @@ public class Main {
     private void asignarEnunciado() {
 
     }
-
+    
     /**
      * Método para demostrar el patrón Singleton
      */
     private void mostrarEstadoSingleton() {
         System.out.println("\n🔧 DEMOSTRACIÓN PATRÓN SINGLETON");
         System.out.println(Utilidades.repetir("-", 35));
-        
+
         // Obtener otra "instancia" (será la misma)
         Main otraInstancia = Main.getInstance();
-        
         System.out.println("📊 Hash de esta instancia: " + this.hashCode());
         System.out.println("📊 Hash de 'otra' instancia: " + otraInstancia.hashCode());
         System.out.println("🔍 ¿Son la misma instancia? " + (this == otraInstancia ? "✅ SÍ" : "❌ NO"));
         System.out.println("💡 Esto demuestra que Singleton garantiza UNA SOLA INSTANCIA");
     }
+
+
+
     /**
      * Limpieza de recursos al cerrar la aplicación
      */
@@ -184,9 +186,11 @@ public class Main {
     // Getters para acceder a los servicios desde otras clases
     public Dao getDao() {
         return dao;
+
     }
     
     public ExamenService getExamenService() {
         return examenService;
     }
+    
 }

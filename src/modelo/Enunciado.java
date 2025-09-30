@@ -96,7 +96,7 @@ public class Enunciado implements Serializable {
 
     @Override
     public String toString() {
-
+        
         return "Enunciado{"
                 + "id=" + id
                 + ", descripcion='" + descripcion + '\''
