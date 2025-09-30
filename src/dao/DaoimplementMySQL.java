@@ -5,7 +5,8 @@
  */
 package dao;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import excepciones.DAOException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +34,7 @@ import modelo.UnidadDidactica;
  * @author Alexander
  */
 public class DaoimplementMySQL implements Dao {
-
+    private static final Logger LOGGER = Logger.getLogger(DaoimplementMySQL.class.getName());
     // SINGLETON PATTERN
     private static DaoimplementMySQL instance;
     private static final Object lock = new Object();
