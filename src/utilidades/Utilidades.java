@@ -1,15 +1,9 @@
-/*
- * Clase Utilidades corregida y compatible con el Main
- * Mantiene métodos originales + agrega métodos necesarios para el Main
- */
 package utilidades;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -410,4 +404,5 @@ public class Utilidades {
         }
         return new String(array);
     }
+
 }

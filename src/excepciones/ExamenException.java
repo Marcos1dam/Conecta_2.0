@@ -9,6 +9,11 @@ package excepciones;
  *
  * @author juanm
  */
-public class ficheroError {
-    
+public class ExamenException extends Exception{
+    public ExamenException(String message) {
+        super(message);
+    }
+    public ExamenException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

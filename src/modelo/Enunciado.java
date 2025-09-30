@@ -13,6 +13,7 @@ import java.util.List;
  *
  * @author juanm
  */
+
 public class Enunciado implements Serializable {
 
     private int id;
@@ -95,6 +96,7 @@ public class Enunciado implements Serializable {
 
     @Override
     public String toString() {
+        
         return "Enunciado{"
                 + "id=" + id
                 + ", descripcion='" + descripcion + '\''

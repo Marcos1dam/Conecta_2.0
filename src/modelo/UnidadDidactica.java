@@ -13,6 +13,7 @@ import java.util.List;
  *
  * @author juanm
  */
+
 public class UnidadDidactica implements Serializable {
 
     private int id;
@@ -21,6 +22,7 @@ public class UnidadDidactica implements Serializable {
     private String evaluacion;
     private String descripcion;
     private List<Enunciado> enunciados;
+
 
     public UnidadDidactica() {
         this.enunciados = new ArrayList<>();
@@ -81,10 +83,12 @@ public class UnidadDidactica implements Serializable {
 
     public void setEnunciados(List<Enunciado> enunciados) {
         this.enunciados = enunciados;
+
     }
 
     @Override
     public String toString() {
+
         return "UnidadDidactica{"
                 + "id=" + id
                 + ", acronimo='" + acronimo + '\''
@@ -92,5 +96,6 @@ public class UnidadDidactica implements Serializable {
                 + ", evaluacion='" + evaluacion + '\''
                 + ", descripcion='" + descripcion + '\''
                 + '}';
+
     }
 }
